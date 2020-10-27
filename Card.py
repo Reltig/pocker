@@ -16,9 +16,3 @@ def create_new_deck():
             card = Card(val, m)
             deck.append(card)
     return deck
-
-
-def get_hand_rating(hand):
-    score = 0
-    hand
-    return score
