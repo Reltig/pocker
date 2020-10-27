@@ -1,6 +1,6 @@
 class Player(object):
     def __init__(self, name):
-        self.hand = None
+        self.hand = []
         self.name = name
         self.score = 0
 
@@ -14,4 +14,4 @@ class Player(object):
         self.score += delta_score
 
     def __str__(self):
-        return 'Player '+self.name+' have score: ' + self.score
+        return f'{self.name} have score: {self.score}'

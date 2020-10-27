@@ -4,7 +4,7 @@ class Card(object):
         self.mast = mast
 
     def __str__(self):
-        return self.value + ' of ' + self.mast + 's'
+        return f'{self.value} of {self.mast}s'
 
 
 def create_new_deck():
@@ -15,8 +15,10 @@ def create_new_deck():
         for val in values:
             card = Card(val, m)
             deck.append(card)
+    return deck
 
 
 def get_hand_rating(hand):
     score = 0
+    hand
     return score
