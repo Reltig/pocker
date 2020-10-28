@@ -1,18 +1,18 @@
 class Card(object):
-    def __init__(self, value, mast):
+    def __init__(self, value, suit):
         self.value = value
-        self.mast = mast
+        self.suit = suit
 
     def __str__(self):
-        return f'{self.value} of {self.mast}s'
+        return f'{self.value} of {self.suit}s'
 
 
 def create_new_deck():
     deck = []
     values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-    mast = ['spade', 'heart', 'diamond', 'club']
-    for m in mast:
+    suits = ['spade', 'heart', 'diamond', 'club']
+    for suit in suits:
         for val in values:
-            card = Card(val, m)
+            card = Card(val, suit)
             deck.append(card)
     return deck

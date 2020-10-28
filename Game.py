@@ -11,7 +11,7 @@ class Game(object):
         # TODO: implementation of time(a nahuya?)
 
     def start_game(self):
-        while self.game_is_running:
+        if self.game_is_running is True:
             round = Round(self.players)
             round.play_round()
 

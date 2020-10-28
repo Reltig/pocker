@@ -1,16 +1,19 @@
 class Player(object):
-    def __init__(self, name):
+    def __init__(self, name, cash=300):
         self.hand = []
         self.name = name
-        self.cash = 0
+        self.cash = cash
         self.current_bet = 0
-        self.isPlaying = True
+        self.inGame = True
 
     def add_card(self, card):
         self.hand.append(card)
 
     def get_hand(self):
         return self.hand
+
+    def get_cash(self):
+        return self.cash
 
     def update_cash(self, delta_cash):
         self.cash += delta_cash
@@ -22,7 +25,7 @@ class Player(object):
         return self.current_bet
 
     def exit_from_round(self):
-        self.isPlaying = False
+        self.inGame = False
 
     def __str__(self):
-        return f'{self.name} have score: {self.cash}'
+        return self.name
