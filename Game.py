@@ -1,6 +1,6 @@
 #  правила - техасский холдем
 from Player import Player
-from Round import Round
+from Match import Match
 
 
 class Game(object):
@@ -12,8 +12,8 @@ class Game(object):
 
     def start_game(self):
         if self.game_is_running is True:
-            round = Round(self.players)
-            round.play_round()
+            match = Match(self.players)
+            match.play_match()
 
 
 if __name__ == '__main__':
