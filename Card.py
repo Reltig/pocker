@@ -9,7 +9,7 @@ class Card(object):
 
 def create_new_deck():
     deck = []
-    values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+    values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
     suits = ['spade', 'heart', 'diamond', 'club']
     for suit in suits:
         for val in values:
