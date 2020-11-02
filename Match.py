@@ -7,24 +7,43 @@ class Match(object):
     def __init__(self, players):
         self.deck = create_new_deck()
         self.rounds = ['Preflop', 'Flop', 'Turn', 'River']
+        self.player_actions = {'call': 1, 'rise': 2, 'fold': 3, 'check': 4, 'blind': 5, 'big_blind': 6}
+        self.current_round_id = 0
         self.players = players
-        self.dealer_id = 0
+        self.current_player_id = 0
         self.cards_on_table = []
 
+    def draw(self, win):
+
+
     #  Главная функция
-    def play_match(self):
+    def start_match(self):
         #  TODO: сделать класс для раундов
         self.deck = create_new_deck()
         self.dispensation(self.players, 2)
-        for round in self.rounds:
+
+        # self.players_ranking()
+        # self.end_round()
+
+    def update_match(self):
+        player = self.players[self.current_player_id]
+        if player.get_current_action() is not None:
+            round = self.rounds[self.current_round_id]
             if round != 'Preflop':
                 print('On table: ')
                 for card in self.cards_on_table:
                     print(f'{card} ')
+            action = self.players[self.current_player_id].get_current_action()
+            self.choose_action(action)
             self.betting(round)
             self.cards_on_table.append(self.deck.pop())
-        self.players_ranking()
-        self.end_round()
+            self.players[self.current_player_id].set_current_action(None)
+            self.current_player_id += 1
+            if self.current_player_id >= len(self.players):
+                self.start_next_round()
+
+        if self.current_round_id >= len(self.rounds):
+            self.end_round()
 
     #  Раздача карт игрокам
     def dispensation(self, players, cards_count=2):
@@ -33,6 +52,10 @@ class Match(object):
             for _ in range(cards_count):
                 card = self.deck.pop()
                 player.add_card(card)
+
+    def start_new_round(self):
+        #  TODO: implementation
+        self.current_round_id += 1
 
     #  Оценка рук игроков
     def players_ranking(self):
@@ -53,84 +76,73 @@ class Match(object):
         return max([p.get_current_bet() for p in self.players])
 
     #  Игрок выбирает действие
-    def choose_action(self, player, axiom_action=None):
+    def choose_action(self, action):
         # TODO:  реквесты заинжектить в Player и мб этот метод
-        if axiom_action is None:
-            strategy_id = player.strategy_request()
-        else:
-            strategy_id = axiom_action
+        strategy_id = self.player_actions[action]
         if strategy_id == 1:
-            self.call(player)
+            self.call()
         elif strategy_id == 2:
-            self.rise(player)
+            self.rise()
         elif strategy_id == 3:
-            self.fold(player)
+            self.fold()
         elif strategy_id == 4:
-            self.check(player)
+            self.check()
         elif strategy_id == 5:
-            self.blind(player)
+            self.blind()
         elif strategy_id == 6:
-            self.big_blind(player)
+            self.big_blind()
 
     #  Функции, реализующие действия игрока в период торгов
-    def call(self, player):
-        previous_player_id = (self.players.index(player) - 1) % len(self.players)
+    def call(self):
+        previous_player_id = self.current_player_id - 1
         previous_player = self.players[previous_player_id]
         bet = previous_player.get_current_bet()
         if bet <= player.get_cash():
-            player.set_current_bet(bet)
-        else:
-            print("Невозможное действие. Повторите запрос")
-            self.choose_action(player)
+            self.players[self.current_player_id].set_current_bet(bet)
 
-    def rise(self, player):
+    def rise(self):
+        player = self.players[self.current_player_id]
         bet = player.cash_request()
-        if bet <= player.get_cash() and bet > self.get_max_bet():
-            player.set_current_bet(bet)
-        else:
-            print("Невозможное действие. Повторите запрос")
-            self.choose_action(player)
+        if player.get_cash() >= bet > self.get_max_bet():
+            self.players[self.current_player_id].set_current_bet(bet)
 
-    def fold(self, player):
-        player.exit_from_round()
+    def fold(self):
+        self.players[self.current_player_id].exit_from_round()
 
-    def check(self, player):
+    def check(self):
+        player = self.players[self.current_player_id]
         bet = player.cash_request()
         if bet == self.get_max_bet():
-            player.set_current_bet(bet)
-        else:
-            print("Невозможное действие. Повторите запрос")
-            self.choose_action(player)
+            self.players[self.current_player_id].set_current_bet(bet)
 
-    def blind(self, player):
+    def blind(self):
+        player = self.players[self.current_player_id]
         bet = player.cash_request()
         if bet <= player.get_cash():
-            player.set_current_bet(bet)
-        else:
-            print("Невозможное действие. Повторите запрос")
-            self.choose_action(player)
+            self.players[self.current_player_id].set_current_bet(bet)
 
-    def big_blind(self, player):
-        prev_player_id = 1
+    def big_blind(self):
+        prev_player_id = 0
         bet = 2 * self.players[prev_player_id].get_current_bet()
-        player.set_current_bet(bet)
+        self.players[self.current_player_id].set_current_bet(bet)
 
     #  Ставки
     def betting(self, round):
-        for player_id in range(len(self.players)):
-            if round == 'Preflop':
-                if player_id == 0:
-                    self.choose_action(self.players[player_id], axiom_action=5)  # blind
-                elif player_id == 1:
-                    self.choose_action(self.players[player_id], axiom_action=6)  # big blind
-                else:
-                    self.choose_action(self.players[player_id])
-
+        if round == 'Preflop':
+            if self.current_player_id == 0:
+                self.choose_action(self.player_actions['blind'])  # blind
+            elif self.current_player_id == 1:
+                self.choose_action(self.player_actions['big_blind'])  # big blind
             else:
-                self.choose_action(self.players[player_id])
+                self.choose_action()
+
+        else:
+            self.choose_action()
 
     #  Конец раунда
     def end_round(self):
         #  Игроки меняются местами, двигаются по часовому кругу
+        #  TODO: перечисление лавэ победителю
         t = self.players[1:]
         t.append(self.players[0])
+        self.players = t

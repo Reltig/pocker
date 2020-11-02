@@ -5,6 +5,10 @@ class Player(object):
         self.cash = cash
         self.current_bet = 0
         self.inGame = True
+        self.current_action = None
+
+    def draw(self):
+        pass
 
     def add_card(self, card):
         self.hand.append(card)
@@ -17,6 +21,12 @@ class Player(object):
 
     def get_current_bet(self):
         return self.current_bet
+
+    def set_current_action(self, action):
+        self.current_action = action
+
+    def get_current_action(self):
+        return self.current_action
 
     def set_current_bet(self, bet):
         self.current_bet = bet
