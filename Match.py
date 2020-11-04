@@ -14,7 +14,20 @@ class Match(object):
         self.cards_on_table = []
 
     def draw(self, win):
+        x0 = 0
+        y0 = 0
+        offset = 20
+        i = 0
+        for card in self.players[self.current_player_id].get_hand():
+            card.draw(win, x0*i, y0)
+            i += 1
+        if self.cards_on_table is not None:
+            for card in self.cards_on_table:
+                card.draw(win, offset + x0*i, y0)
+                i += 1
 
+    def set_current_action(self, action):
+        self.players[self.current_player_id].set_current_action(action)
 
     #  Главная функция
     def start_match(self):
@@ -29,10 +42,6 @@ class Match(object):
         player = self.players[self.current_player_id]
         if player.get_current_action() is not None:
             round = self.rounds[self.current_round_id]
-            if round != 'Preflop':
-                print('On table: ')
-                for card in self.cards_on_table:
-                    print(f'{card} ')
             action = self.players[self.current_player_id].get_current_action()
             self.choose_action(action)
             self.betting(round)
@@ -94,6 +103,7 @@ class Match(object):
 
     #  Функции, реализующие действия игрока в период торгов
     def call(self):
+        player = self.players[self.current_player_id]
         previous_player_id = self.current_player_id - 1
         previous_player = self.players[previous_player_id]
         bet = previous_player.get_current_bet()
