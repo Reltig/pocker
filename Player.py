@@ -1,5 +1,6 @@
 class Player(object):
     def __init__(self, name, cash=300):
+        self.temp_cash = 0
         self.hand = []
         self.name = name
         self.cash = cash
@@ -21,6 +22,12 @@ class Player(object):
 
     def get_current_bet(self):
         return self.current_bet
+
+    def set_temp_cash(self, cash):
+        self.temp_cash = cash
+
+    def set_current_bet(self, bet):
+        self.current_bet = bet
 
     def set_current_action(self, action):
         self.current_action = action
@@ -46,5 +53,5 @@ class Player(object):
     def cash_request(self):
         cash = -1
         while not(cash > 0 and cash <= self.get_cash()):
-            cash = int(input("Выберите сумму: "))
+            cash = self.temp_cash
         return cash

@@ -16,6 +16,9 @@ class Card(object):
     def draw(self, win, x0, y0):
         rect = self.img.get_rect(topleft=(x0, y0))
         win.blit(self.img, rect)
+        font = pygame.font.Font(None, 36)
+        text = font.render(self.value, 1, (0,0,0))
+        win.blit(text, (x0, y0))
 
 
 def create_new_deck():

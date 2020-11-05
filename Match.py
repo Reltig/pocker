@@ -16,14 +16,15 @@ class Match(object):
     def draw(self, win):
         x0 = 0
         y0 = 0
-        offset = 20
+        offset = 150
         i = 0
         for card in self.players[self.current_player_id].get_hand():
-            card.draw(win, x0*i, y0)
+            card.draw(win, x0+offset*i, y0)
             i += 1
+        i = 0
         if self.cards_on_table is not None:
             for card in self.cards_on_table:
-                card.draw(win, offset + x0*i, y0)
+                card.draw(win, x0 + offset*i, y0+260)
                 i += 1
 
     def set_current_action(self, action):
@@ -35,17 +36,12 @@ class Match(object):
         self.deck = create_new_deck()
         self.dispensation(self.players, 2)
 
-        # self.players_ranking()
-        # self.end_round()
-
     def update_match(self):
         player = self.players[self.current_player_id]
         if player.get_current_action() is not None:
             round = self.rounds[self.current_round_id]
             action = self.players[self.current_player_id].get_current_action()
-            self.choose_action(action)
-            self.betting(round)
-            self.cards_on_table.append(self.deck.pop())
+            self.betting(round, action)
             self.players[self.current_player_id].set_current_action(None)
             self.current_player_id += 1
             if self.current_player_id >= len(self.players):
@@ -110,6 +106,9 @@ class Match(object):
         if bet <= player.get_cash():
             self.players[self.current_player_id].set_current_bet(bet)
 
+    def get_current_player(self):
+        return self.players[self.current_player_id]
+
     def rise(self):
         player = self.players[self.current_player_id]
         bet = player.cash_request()
@@ -137,17 +136,17 @@ class Match(object):
         self.players[self.current_player_id].set_current_bet(bet)
 
     #  Ставки
-    def betting(self, round):
+    def betting(self, round, action):
         if round == 'Preflop':
             if self.current_player_id == 0:
-                self.choose_action(self.player_actions['blind'])  # blind
+                self.choose_action('blind')  # blind
             elif self.current_player_id == 1:
-                self.choose_action(self.player_actions['big_blind'])  # big blind
+                self.choose_action('big_blind')  # big blind
             else:
-                self.choose_action()
+                self.choose_action(action)
 
         else:
-            self.choose_action()
+            self.choose_action(action)
 
     #  Конец раунда
     def end_round(self):
@@ -156,3 +155,8 @@ class Match(object):
         t = self.players[1:]
         t.append(self.players[0])
         self.players = t
+
+    def start_next_round(self):
+        self.cards_on_table.append(self.deck.pop())
+        self.current_round_id += 1
+        self.current_player_id = 0
