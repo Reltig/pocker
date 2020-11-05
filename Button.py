@@ -1,4 +1,5 @@
 import pygame
+from consts import *
 
 
 class Button(object):
@@ -12,7 +13,7 @@ class Button(object):
     def isClicked(self, x, y):
         return (self.x <= x <= self.x + self.width) and (self.y <= y <= self.y + self.height)
 
-    def draw(self, win, color, text_color=(0, 0, 0)):
+    def draw(self, win, color, text_color=BLACK):
         pygame.draw.rect(win, color, (self.x, self.y, self.height, self.width))
         font = pygame.font.Font(None, 36)
         text = font.render(self.text, 1, text_color)

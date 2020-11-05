@@ -1,4 +1,6 @@
 import pygame
+from consts import *
+
 
 
 class TextPanel(object):
@@ -6,7 +8,7 @@ class TextPanel(object):
         self.text = ''
         self.rect = pygame.Rect(x, y, w, h)
 
-    def draw(self, win, text_color=(0,0,0)):
+    def draw(self, win, text_color=BLACK):
         font = pygame.font.Font(None, 36)
         text = font.render(self.text, 1, text_color)
         win.blit(text, (self.rect.x, self.rect.y))

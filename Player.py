@@ -46,12 +46,3 @@ class Player(object):
 
     def __str__(self):
         return self.name
-
-    def strategy_request(self):
-        return int(input("Выберите действие(1.Call 2.Rise 3.Fold 4.Check): "))
-
-    def cash_request(self):
-        cash = -1
-        while not(cash > 0 and cash <= self.get_cash()):
-            cash = self.temp_cash
-        return cash

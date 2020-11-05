@@ -1,40 +1,52 @@
 from Card import create_new_deck
 from HandСalcTHRules import get_hand_cost
 import random
+from tempTextPanel import TextPanel
+from Button import Button
+from consts import *
+
 
 
 class Match(object):
-    def __init__(self, players):
+    def __init__(self, players, win):
         self.deck = create_new_deck()
+        self.cards_on_table = []
         self.rounds = ['Preflop', 'Flop', 'Turn', 'River']
-        self.player_actions = {'call': 1, 'rise': 2, 'fold': 3, 'check': 4, 'blind': 5, 'big_blind': 6}
         self.current_round_id = 0
+        self.player_actions = {'call': 1, 'rise': 2, 'fold': 3, 'check': 4, 'blind': 5, 'big_blind': 6}
+        self.buttons = [Button(0, 200, 40, 60, 'call'), Button(60, 200, 40, 60, 'rise'), Button(120, 200, 40, 60, 'fold'), Button(180, 200, 40, 60, 'check')]
+        self.win = win
+        self.text_pan = TextPanel(0, 250, 40, 120)
         self.players = players
         self.current_player_id = 0
-        self.cards_on_table = []
-
-    def draw(self, win):
-        x0 = 0
-        y0 = 0
-        offset = 150
-        i = 0
-        for card in self.players[self.current_player_id].get_hand():
-            card.draw(win, x0+offset*i, y0)
-            i += 1
-        i = 0
-        if self.cards_on_table is not None:
-            for card in self.cards_on_table:
-                card.draw(win, x0 + offset*i, y0+260)
-                i += 1
-
-    def set_current_action(self, action):
-        self.players[self.current_player_id].set_current_action(action)
 
     #  Главная функция
     def start_match(self):
         #  TODO: сделать класс для раундов
         self.deck = create_new_deck()
         self.dispensation(self.players, 2)
+
+    #  Раздача карт игрокам
+    def dispensation(self, players, cards_count=2):
+        random.shuffle(self.deck)
+        for player in players:
+            for _ in range(cards_count):
+                card = self.deck.pop()
+                player.add_card(card)
+
+    def check_buttons(self, x, y):
+        for button in self.buttons:
+            if button.isClicked(x, y):
+                self.set_current_action(button.text)
+
+    def draw(self, win):
+        self.cards_draw(win)
+        self.text_pan.draw(self.win)
+        for button in self.buttons:
+            button.draw(self.win, GOVNO)
+
+    def set_current_action(self, action):
+        self.players[self.current_player_id].set_current_action(action)
 
     def update_match(self):
         player = self.players[self.current_player_id]
@@ -49,14 +61,6 @@ class Match(object):
 
         if self.current_round_id >= len(self.rounds):
             self.end_round()
-
-    #  Раздача карт игрокам
-    def dispensation(self, players, cards_count=2):
-        random.shuffle(self.deck)
-        for player in players:
-            for _ in range(cards_count):
-                card = self.deck.pop()
-                player.add_card(card)
 
     def start_new_round(self):
         #  TODO: implementation
@@ -76,9 +80,19 @@ class Match(object):
             for card in p.get_hand():
                 print(card)
 
-    # Максимальная ставка
-    def get_max_bet(self):
-        return max([p.get_current_bet() for p in self.players])
+    def cards_draw(self, win):
+        x0 = 0
+        y0 = 0
+        offset = 150
+        i = 0
+        for card in self.players[self.current_player_id].get_hand():
+            card.draw(win, x0 + offset * i, y0)
+            i += 1
+        i = 0
+        if self.cards_on_table is not None:
+            for card in self.cards_on_table:
+                card.draw(win, x0 + offset * i, y0 + 260)
+                i += 1
 
     #  Игрок выбирает действие
     def choose_action(self, action):
@@ -111,7 +125,7 @@ class Match(object):
 
     def rise(self):
         player = self.players[self.current_player_id]
-        bet = player.cash_request()
+        bet = self.cash_request()
         if player.get_cash() >= bet > self.get_max_bet():
             self.players[self.current_player_id].set_current_bet(bet)
 
@@ -119,14 +133,17 @@ class Match(object):
         self.players[self.current_player_id].exit_from_round()
 
     def check(self):
-        player = self.players[self.current_player_id]
-        bet = player.cash_request()
+        bet = self.cash_request()
         if bet == self.get_max_bet():
             self.players[self.current_player_id].set_current_bet(bet)
 
+    # Максимальная ставка
+    def get_max_bet(self):
+        return max([p.get_current_bet() for p in self.players])
+
     def blind(self):
         player = self.players[self.current_player_id]
-        bet = player.cash_request()
+        bet = self.cash_request()
         if bet <= player.get_cash():
             self.players[self.current_player_id].set_current_bet(bet)
 
@@ -147,6 +164,10 @@ class Match(object):
 
         else:
             self.choose_action(action)
+
+    def cash_request(self):
+        cash = int(self.text_pan.get_text())
+        return cash
 
     #  Конец раунда
     def end_round(self):
